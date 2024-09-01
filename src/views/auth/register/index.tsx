@@ -9,12 +9,49 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import { useRouter } from 'next/router';
+import Cookies from 'js-cookie';
+import { useEffect } from 'react';
+import { RegisterForm, registerSchema } from './register-schema';
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form';
+import { registration } from '@/store/auth';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/store';
 
 const RegisterView = () => {
   const { push } = useRouter()
 
+  const dispatch = useDispatch<AppDispatch>();
+
   const handleClickLogin = () => {
     push('/auth/login')
+  }
+
+  const form = useForm<RegisterForm>({
+    defaultValues: {
+      email: '',
+      first_name: '',
+      last_name: '',
+      password: '',
+      confirmPassword: '',
+    },
+
+    resolver: zodResolver(registerSchema)
+  })
+
+  const { handleSubmit, reset, register, formState: { errors } } = form
+
+  const onSubmit = async (data: RegisterForm) => {
+    try {
+      const { confirmPassword, ...payload } = data;
+
+      await dispatch(registration(payload)).unwrap()
+
+      reset()
+      push('/auth/login')
+    } catch (error) {
+      console.log({ error })
+    }
   }
 
   return (
@@ -33,6 +70,9 @@ const RegisterView = () => {
               autoComplete='off'
               fullWidth
               placeholder="masukkan email anda"
+              error={!!errors.email}
+              helperText={errors?.email?.message || ''}
+              {...register(`email` as const)}
               slotProps={{
                 input: {
                   startAdornment: <InputAdornment position="start">@</InputAdornment>,
@@ -44,6 +84,9 @@ const RegisterView = () => {
               autoComplete='off'
               fullWidth
               placeholder="nama depan"
+              error={!!errors.first_name}
+              helperText={errors?.first_name?.message || ''}
+              {...register(`first_name` as const)}
               slotProps={{
                 input: {
                   startAdornment: <InputAdornment position="start"><PersonOutlinedIcon /></InputAdornment>,
@@ -55,6 +98,9 @@ const RegisterView = () => {
               autoComplete='off'
               fullWidth
               placeholder="nama belakang"
+              error={!!errors.last_name}
+              helperText={errors?.last_name?.message || ''}
+              {...register(`last_name` as const)}
               slotProps={{
                 input: {
                   startAdornment: <InputAdornment position="start"><PersonOutlinedIcon /></InputAdornment>,
@@ -66,6 +112,9 @@ const RegisterView = () => {
               autoComplete='off'
               fullWidth
               placeholder="buat password"
+              error={!!errors.password}
+              helperText={errors?.password?.message || ''}
+              {...register(`password` as const)}
               slotProps={{
                 input: {
                   startAdornment: <InputAdornment position="start"><LockOutlinedIcon fontSize="small" /></InputAdornment>,
@@ -78,6 +127,9 @@ const RegisterView = () => {
               autoComplete='off'
               fullWidth
               placeholder="konfirmasi password"
+              error={!!errors.confirmPassword}
+              helperText={errors?.confirmPassword?.message || ''}
+              {...register(`confirmPassword` as const)}
               slotProps={{
                 input: {
                   startAdornment: <InputAdornment position="start"><LockOutlinedIcon fontSize="small" /></InputAdornment>,
@@ -87,7 +139,7 @@ const RegisterView = () => {
             />
           </Box>
 
-          <Button variant="contained" fullWidth sx={{ backgroundColor: '#f42619', textTransform: 'capitalize', marginBottom: '2rem' }} onClick={handleClickLogin}>Registrasi</Button>
+          <Button variant="contained" fullWidth sx={{ backgroundColor: '#f42619', textTransform: 'capitalize', marginBottom: '2rem' }} onClick={handleSubmit(onSubmit)}>Registrasi</Button>
 
           <Typography>sudah punya akun? login <span style={{ color: '#f42619', cursor: 'pointer' }} onClick={handleClickLogin}>di sini</span></Typography>
         </Grid>

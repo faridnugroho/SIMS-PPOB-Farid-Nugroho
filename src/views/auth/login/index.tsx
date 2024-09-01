@@ -8,16 +8,57 @@ import Image from "next/image";
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import { useRouter } from 'next/router';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod'
+import { LoginForm, loginSchema } from './login-schema';
+import { useDispatch } from 'react-redux';
+import { login } from '@/store/auth';
+import { AppDispatch } from '@/store';
+import Cookies from 'js-cookie';
+import { useEffect, useState } from 'react';
+import Alert from '@mui/material/Alert';
+import axios from 'axios';
 
 const LoginView = () => {
-  const { push } = useRouter()
+  const { push } = useRouter();
+
+  const dispatch = useDispatch<AppDispatch>();
 
   const handleClickRegister = () => {
     push('/auth/register')
   }
 
-  const handleClickLogin = () => {
-    push('/')
+  const form = useForm<LoginForm>({
+    defaultValues: {
+      email: '',
+      password: ''
+    },
+
+    resolver: zodResolver(loginSchema)
+  })
+
+  const { handleSubmit, reset, register, formState: { errors } } = form
+
+  const [errorMessage, setErrorMessage] = useState<string>('')
+
+  const onSubmit = async (data: LoginForm) => {
+    try {
+      const result = await dispatch(login(data)).unwrap()
+
+      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString();
+
+      document.cookie = `accessToken=${result.data.token}; path=/; secure; samesite=strict; expires=${expires}`;
+
+      reset()
+      push('/')
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.message || 'Terjadi kesalahan';
+
+        setErrorMessage(message);
+      }
+
+    }
   }
 
   return (
@@ -36,6 +77,10 @@ const LoginView = () => {
               autoComplete='off'
               fullWidth
               placeholder="masukkan email anda"
+              error={!!errors.email}
+              helperText={errors?.email?.message || ''}
+              {...register(`email` as const)}
+              onChange={() => setErrorMessage('')}
               slotProps={{
                 input: {
                   startAdornment: <InputAdornment position="start">@</InputAdornment>,
@@ -47,6 +92,10 @@ const LoginView = () => {
               autoComplete='off'
               fullWidth
               placeholder="masukkan password anda"
+              error={!!errors.password}
+              helperText={errors?.password?.message || ''}
+              {...register(`password` as const)}
+              onChange={() => setErrorMessage('')}
               slotProps={{
                 input: {
                   startAdornment: <InputAdornment position="start"><LockOutlinedIcon fontSize="small" /></InputAdornment>,
@@ -56,10 +105,27 @@ const LoginView = () => {
             />
           </Box>
 
-          <Button variant="contained" fullWidth sx={{ backgroundColor: '#f42619', textTransform: 'capitalize', marginBottom: '2rem' }} onClick={handleClickLogin}>Masuk</Button>
+          <Button variant="contained" fullWidth sx={{ backgroundColor: '#f42619', textTransform: 'capitalize', marginBottom: '2rem' }} onClick={handleSubmit(onSubmit)}>Masuk</Button>
 
-          <Typography>belum punya akun? register <span style={{ color: '#f42619', cursor: 'pointer' }} onClick={handleClickRegister}>di sini</span></Typography>
+          <Typography>
+            belum punya akun? register <span style={{ color: '#f42619', cursor: 'pointer' }} onClick={handleClickRegister}>
+              di sini</span>
+          </Typography>
+
+          {errorMessage &&
+            <Alert severity="error" icon={false} onClose={() => setErrorMessage('')}
+              sx={{
+                position: 'fixed',
+                bottom: 50,
+                left: 25,
+                zIndex: 9999
+              }}
+            >
+              {errorMessage}
+            </Alert>
+          }
         </Grid>
+
 
         <Grid size={6} sx={{ backgroundColor: '#fff1f0', display: 'flex', justifyContent: 'end' }}>
           <Box

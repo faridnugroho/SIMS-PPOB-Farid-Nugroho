@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable @next/next/no-img-element */
 
 import Image from 'next/image';
@@ -12,10 +13,17 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import './Swiper.module.css';
+import { AppDispatch, RootState } from '@/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { useState, useEffect } from 'react';
+import { getServices } from '@/store/services';
+import { useRouter } from 'next/router';
 
 type ServiceType = {
-  name: string
-  image: string
+  service_code: string
+  service_icon: string
+  service_name: string
+  service_tariff: string
 }
 
 const DataService = [
@@ -70,17 +78,57 @@ const DataService = [
 ]
 
 const HomeView = () => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const { push } = useRouter()
+
+  const store: any = useSelector((state: RootState) => state.services);
+
+  const [imageStatus, setImageStatus] = useState<Record<number, boolean>>({});
+
+  const checkImage = async (url: string, index: number) => {
+    try {
+      const response = await fetch(url, { method: 'HEAD' });
+      if (response.ok) {
+        setImageStatus(prev => ({ ...prev, [index]: true }));
+      } else {
+        setImageStatus(prev => ({ ...prev, [index]: false }));
+      }
+    } catch {
+      setImageStatus(prev => ({ ...prev, [index]: false }));
+    }
+  };
+
+  useEffect(() => {
+    store?.data?.forEach((item: ServiceType, index: number) => {
+      checkImage(item.service_icon, index);
+    });
+  }, [store?.data]);
+
+  useEffect(() => {
+    dispatch(getServices())
+  }, [dispatch])
+
+  const handleClickService = (item: ServiceType) => {
+    localStorage.setItem('selectedService', JSON.stringify(item));
+
+    push('/purchase')
+  };
+
   return (
     <Container maxWidth="xl">
       <HeaderSection />
 
       <Grid container marginBottom={4}>
-        {DataService?.map((item: ServiceType, index: number) => {
+        {store?.data?.map((item: ServiceType, index: number) => {
+          const isImageAvailable = imageStatus[index];
+          const imageUrl = isImageAvailable ? item.service_icon : '/assets/PBB.png';
+
           return (
             <Grid size={{ xs: 3, sm: 2, md: 1 }} key={index}>
-              <Box display='flex' flexDirection='column' alignItems='center' gap={.5}>
-                <Image alt='icon-sims-ppob' width={50} height={50} src={item.image}></Image>
-                <Typography textAlign={'center'}>{item.name}</Typography>
+              <Box display='flex' flexDirection='column' alignItems='center' gap={.5} sx={{ cursor: 'pointer' }} onClick={() => handleClickService(item)}>
+                <img width={50} height={50} src={imageUrl} />
+                <Typography textAlign={'center'}>{item.service_name}</Typography>
               </Box>
             </Grid>
           )

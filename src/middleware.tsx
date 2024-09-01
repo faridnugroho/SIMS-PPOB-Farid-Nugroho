@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
-  const isLogin = true
+  const token = req.cookies.get('accessToken')?.value;
 
-  if (isLogin) {
+  if (token) {
     return NextResponse.next();
   } else {
     return NextResponse.redirect(new URL("/auth/login", req.url));
@@ -13,6 +13,7 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
+    "/",
     "/account",
     "/transaction",
     "/top-up",
