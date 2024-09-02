@@ -1,12 +1,11 @@
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import Grid from '@mui/material/Grid2';
 import Image from "next/image";
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -14,15 +13,21 @@ import { LoginForm, loginSchema } from './login-schema';
 import { useDispatch } from 'react-redux';
 import { login } from '@/store/auth';
 import { AppDispatch } from '@/store';
-import Cookies from 'js-cookie';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Alert from '@mui/material/Alert';
 import axios from 'axios';
+import { VisibilityOutlined as VisibilityOutlinedIcon, VisibilityOffOutlined as VisibilityOffOutlinedIcon, LockOutlined as LockOutlinedIcon } from '@mui/icons-material';
 
 const LoginView = () => {
   const { push } = useRouter();
 
   const dispatch = useDispatch<AppDispatch>();
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   const handleClickRegister = () => {
     push('/auth/register')
@@ -91,6 +96,7 @@ const LoginView = () => {
             />
 
             <TextField
+              type={showPassword ? 'text' : 'password'}
               autoComplete='off'
               fullWidth
               placeholder="masukkan password anda"
@@ -101,7 +107,13 @@ const LoginView = () => {
               slotProps={{
                 input: {
                   startAdornment: <InputAdornment position="start"><LockOutlinedIcon fontSize="small" /></InputAdornment>,
-                  endAdornment: <InputAdornment position="start"><VisibilityOutlinedIcon fontSize="small" /></InputAdornment>,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={handleTogglePasswordVisibility} edge="end">
+                        {showPassword ? <VisibilityOutlinedIcon fontSize="small" /> : <VisibilityOffOutlinedIcon fontSize="small" />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
                 },
               }}
             />

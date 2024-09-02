@@ -1,27 +1,38 @@
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import Grid from '@mui/material/Grid2';
 import Image from "next/image";
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import { useRouter } from 'next/router';
-import Cookies from 'js-cookie';
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { RegisterForm, registerSchema } from './register-schema';
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form';
 import { registration } from '@/store/auth';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store';
+import { VisibilityOutlined as VisibilityOutlinedIcon, VisibilityOffOutlined as VisibilityOffOutlinedIcon, LockOutlined as LockOutlinedIcon } from '@mui/icons-material';
 
 const RegisterView = () => {
   const { push } = useRouter()
 
   const dispatch = useDispatch<AppDispatch>();
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
+
+  const handleToggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword((prev) => !prev);
+  };
 
   const handleClickLogin = () => {
     push('/auth/login')
@@ -110,6 +121,7 @@ const RegisterView = () => {
 
             <TextField
               autoComplete='off'
+              type={showPassword ? 'text' : 'password'}
               fullWidth
               placeholder="buat password"
               error={!!errors.password}
@@ -118,13 +130,20 @@ const RegisterView = () => {
               slotProps={{
                 input: {
                   startAdornment: <InputAdornment position="start"><LockOutlinedIcon fontSize="small" /></InputAdornment>,
-                  endAdornment: <InputAdornment position="start"><VisibilityOutlinedIcon fontSize="small" /></InputAdornment>,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={handleTogglePasswordVisibility} edge="end">
+                        {showPassword ? <VisibilityOutlinedIcon fontSize="small" /> : <VisibilityOffOutlinedIcon fontSize="small" />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
                 },
               }}
             />
 
             <TextField
               autoComplete='off'
+              type={showConfirmPassword ? 'text' : 'password'}
               fullWidth
               placeholder="konfirmasi password"
               error={!!errors.confirmPassword}
@@ -133,7 +152,13 @@ const RegisterView = () => {
               slotProps={{
                 input: {
                   startAdornment: <InputAdornment position="start"><LockOutlinedIcon fontSize="small" /></InputAdornment>,
-                  endAdornment: <InputAdornment position="start"><VisibilityOutlinedIcon fontSize="small" /></InputAdornment>,
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={handleToggleConfirmPasswordVisibility} edge="end">
+                        {showConfirmPassword ? <VisibilityOutlinedIcon fontSize="small" /> : <VisibilityOffOutlinedIcon fontSize="small" />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
                 },
               }}
             />
