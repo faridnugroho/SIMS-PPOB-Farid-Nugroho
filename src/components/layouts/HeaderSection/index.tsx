@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+
 import Image from 'next/image';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
@@ -25,10 +27,29 @@ const HeaderSection = () => {
     dispatch(getProfile())
   }, [dispatch])
 
+  const [imageSrc, setImageSrc] = useState('/assets/profile-photo.png');
+
+  useEffect(() => {
+    const checkImage = async () => {
+      if (storeProfile?.data?.profile_image) {
+        try {
+          const response = await fetch(storeProfile.data.profile_image);
+          if (response.ok) {
+            setImageSrc(storeProfile.data.profile_image);
+          }
+        } catch (error) {
+          console.error('Error fetching the image:', error);
+        }
+      }
+    };
+
+    checkImage();
+  }, [storeProfile?.data?.profile_image]);
+
   return (
     <Grid container marginBottom={4}>
       <Grid size={4}>
-        <Image alt='icon-sims-ppob' width={50} height={50} src={'/assets/profile-photo.png'}></Image>
+        <img alt='icon-sims-ppob' style={{ borderRadius: '50%' }} width={50} height={50} src={imageSrc} />
         <Typography>Selamat datang,</Typography>
         <Typography fontSize={28} fontWeight='bold'>{storeProfile?.data?.first_name} {storeProfile?.data?.last_name}</Typography>
       </Grid>

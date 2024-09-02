@@ -7,7 +7,7 @@ const HomePage = () => {
   return (
     <>
       <Head>
-        <title>Home</title>
+        <title>SIMS PPOB-Farid Nugroho</title>
       </Head>
 
       <HomeView />

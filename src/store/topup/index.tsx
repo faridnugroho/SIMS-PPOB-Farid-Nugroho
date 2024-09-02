@@ -3,22 +3,20 @@ import axios from 'axios';
 import toast from 'react-hot-toast'
 import Cookies from 'js-cookie';
 import { getSaldo } from '../balance';
+import axiosInstance from '@/utils/axios-setup';
 
 interface TopupType {
   top_up_amount: number
+  transaction_type: string
 }
 
 const token = Cookies.get('accessToken');
 
 export const topup = createAsyncThunk(
   'topup/topup',
-  async ({ top_up_amount }: TopupType, { rejectWithValue, dispatch }) => {
+  async (data: TopupType, { rejectWithValue, dispatch }) => {
     try {
-      const response = await axios.post('https://take-home-test-api.nutech-integrasi.com/topup', { top_up_amount }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await axiosInstance.post('/topup', data);
 
       const message = response.data.message
 
@@ -41,12 +39,7 @@ const topUpSlice = createSlice({
     params: {},
     loadingRegister: false,
   },
-  reducers: {
-    logout: (state) => {
-      state.data = [];
-      state.params = {};
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(topup.pending, (state) => {

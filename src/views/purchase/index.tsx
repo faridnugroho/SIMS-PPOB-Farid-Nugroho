@@ -98,7 +98,8 @@ const PurchaseView = () => {
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = event.target.value;
-    const parsedValue = parseNumber(rawValue);
+    const numericValue = rawValue.replace(/[^0-9.,]/g, '');
+    const parsedValue = parseNumber(numericValue);
     setValue('total_amount', formatNumber(parsedValue));
   };
 

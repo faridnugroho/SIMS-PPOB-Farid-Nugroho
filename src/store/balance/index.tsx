@@ -1,16 +1,9 @@
+import axiosInstance from '@/utils/axios-setup';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import Cookies from 'js-cookie';
-
-const token = Cookies.get('accessToken');
 
 export const getSaldo = createAsyncThunk(
   'balance/getSaldo', async () => {
-    const response = await axios.get('https://take-home-test-api.nutech-integrasi.com/balance', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
+    const response = await axiosInstance.get('/balance');
 
     return response.data
   }

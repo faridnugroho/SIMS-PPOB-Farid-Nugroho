@@ -67,12 +67,13 @@ const TopUpView = () => {
   const form = useForm<TopupForm>({
     defaultValues: {
       top_up_amount: '',
+      transaction_type: 'TOPUP'
     },
 
     resolver: zodResolver(topupSchema)
   })
 
-  const { handleSubmit, reset, setValue, register, watch, formState: { errors } } = form
+  const { handleSubmit, reset, setValue, register, clearErrors, watch, formState: { errors } } = form
 
   const onSubmit = async (data: TopupForm) => {
     try {
@@ -100,7 +101,8 @@ const TopUpView = () => {
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = event.target.value;
-    const parsedValue = parseNumber(rawValue);
+    const numericValue = rawValue.replace(/[^0-9.,]/g, '');
+    const parsedValue = parseNumber(numericValue);
     setValue('top_up_amount', formatNumber(parsedValue));
   };
 

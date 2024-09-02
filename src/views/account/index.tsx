@@ -20,11 +20,16 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import { CircularProgress } from '@mui/material';
+import { logout } from "@/store/auth";
+import { useRouter } from "next/router";
+import toast from 'react-hot-toast'
 
 const AccountView = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [isUpdate, setIsUpdate] = useState<boolean>(false)
+
+  const { push } = useRouter()
 
   const store: any = useSelector((state: RootState) => state.profile)
 
@@ -92,6 +97,21 @@ const AccountView = () => {
           setImageSrc(action.payload.url);
         }
       });
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await dispatch(logout())
+
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('selectedService');
+
+      push('/auth/login');
+
+      toast.success('Logout success');
+    } catch (error) {
+      console.error('Logout failed', error);
     }
   };
 
@@ -252,6 +272,7 @@ const AccountView = () => {
                   borderColor: '#f42619',
                   color: '#f42619'
                 }}
+                onClick={handleLogout}
               >
                 Logout
               </Button>

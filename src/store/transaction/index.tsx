@@ -3,6 +3,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast'
 import Cookies from 'js-cookie';
 import { getSaldo } from '../balance';
+import axiosInstance from '@/utils/axios-setup';
 
 interface TopupType {
   total_amount: number
@@ -16,11 +17,7 @@ export const transaction = createAsyncThunk(
   'transaction/transaction',
   async (data: TopupType, { rejectWithValue, dispatch }) => {
     try {
-      const response = await axios.post('https://take-home-test-api.nutech-integrasi.com/transaction', data, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await axiosInstance.post('/transaction', data);
 
       const message = response.data.message
 
@@ -37,10 +34,7 @@ export const transaction = createAsyncThunk(
 
 export const getTransactionHistory = createAsyncThunk(
   'transaction/getTransactionHistory', async ({ offset, limit }: { offset: number; limit: number }) => {
-    const response = await axios.get('https://take-home-test-api.nutech-integrasi.com/transaction/history', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
+    const response = await axiosInstance.get('/transaction/history', {
       params: {
         offset,
         limit,

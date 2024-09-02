@@ -1,16 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import Cookies from 'js-cookie';
-
-const token = Cookies.get('accessToken');
+import axiosInstance from '@/utils/axios-setup';
 
 export const getServices = createAsyncThunk(
   'services/getServices', async () => {
-    const response = await axios.get('https://take-home-test-api.nutech-integrasi.com/services', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
+    const response = await axiosInstance.get('/services');
 
     return response.data
   }

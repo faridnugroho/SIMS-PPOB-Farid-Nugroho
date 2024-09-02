@@ -3,7 +3,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { Dispatch } from 'redux'
 import toast from 'react-hot-toast'
-import axiosInstance from '@/utils/axios-setuo';
+import axiosInstance from '@/utils/axios-setup';
 
 interface UpdateProfileType {
   first_name: string
@@ -30,14 +30,7 @@ export const getProfile = createAsyncThunk(
 
 export const updateProfile = createAsyncThunk(
   'profile/updateProfile', async (data: UpdateProfileType, { dispatch }: Redux) => {
-    const response = await axios.put('https://take-home-test-api.nutech-integrasi.com/profile/update',
-      data,
-      {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      }
-    )
+    const response = await axiosInstance.put('/profile/update', data)
 
     dispatch(getProfile())
 
@@ -52,8 +45,7 @@ export const uploadImage = createAsyncThunk(
     formData.append('file', imageFile);
 
     try {
-      const response = await axios.put(
-        'https://take-home-test-api.nutech-integrasi.com/profile/image',
+      const response = await axiosInstance.put('/profile/image',
         formData,
         {
           headers: {

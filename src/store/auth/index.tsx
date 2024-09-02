@@ -1,6 +1,6 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import toast from 'react-hot-toast'
+import toast from 'react-hot-toast';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 interface LoginCredentials {
   email: string
@@ -73,6 +73,8 @@ const authSlice = createSlice({
     logout: (state) => {
       state.data = [];
       state.params = {};
+
+      document.cookie = 'accessToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT';
     },
   },
   extraReducers: (builder) => {

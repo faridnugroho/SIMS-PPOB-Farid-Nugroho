@@ -47,6 +47,8 @@ const LoginView = () => {
 
       const expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString();
 
+      localStorage.setItem('accessToken', result.data.token);
+
       document.cookie = `accessToken=${result.data.token}; path=/; secure; samesite=strict; expires=${expires}`;
 
       reset()
